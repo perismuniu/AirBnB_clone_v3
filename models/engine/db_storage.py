@@ -51,6 +51,17 @@ class DBStorage:
                     new_dict[key] = obj
         return (new_dict)
 
+    def get(self, cls, id):
+        """retrieves an object of a class with id"""
+        obj = None
+        if cls is not None and issubclass(cls, BaseModel):
+            obj = self.__session.query(cls).filter(cls.id == id).first()
+        return obj
+
+    def count(self, cls=None):
+        """retrieves the number of objects of a class or all (if cls==None)"""
+        return len(self.all(cls))
+
     def new(self, obj):
         """add the object to the current database session"""
         self.__session.add(obj)
@@ -58,21 +69,6 @@ class DBStorage:
     def save(self):
         """commit all changes of the current database session"""
         self.__session.commit()
-
-    def get(self, cls, id):
-        """Retrieve one object"""
-        key = "{}.{}".format(cls.__name__, id)
-        return self.__session.query(cls).filter_by(id=id).first()
-
-    def count(self, cls=None):
-        """Count the number of objects in storage"""
-        if cls is None:
-            total_count = 0
-            for clss in classes.values():
-                total_count += self.__session.query(clss).count()
-            return total_count
-        else:
-            return self.__session.query(cls).count()
 
     def delete(self, obj=None):
         """delete from the current database session obj if not None"""
